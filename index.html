@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>tree</title>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.2/angular.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.js"></script>
+</head>
+
+
+<body ng-app="application">
+
+<script>
+
+//Before your main app module is declared, declare a momentjs module
+angular.module('momentjs',[])
+  //And on the momentjs module, declare the moment service that we want
+  // available as an injectable
+  .factory('moment', function ($window) {
+    if($window.moment){
+      //Delete moment from window so it's not globally accessible.
+      //  We can still get at it through _thirdParty however, more on why later
+      $window._thirdParty = $window._thirdParty || {};
+      $window._thirdParty.moment = $window.moment;
+      try { delete $window.moment; } catch (e) {$window.moment = undefined;
+      /*<IE8 doesn't do delete of window vars, make undefined if delete error*/}
+    }
+    var moment = $window._thirdParty.moment;
+    return moment;
+  });
+
+
+var app = angular.module('application', [
+    'momentjs'
+]);
+
+app.factory('myService',['moment',function(moment){
+  console.log('Wow, such clean access to moment as a service', moment());
+}]);
+
+app.controller("AppCtrl", ['$scope', function($scope) {
+  
+  // $scope.result = 'LLL';
+  $scope.result = moment().format('LL');
+
+}]);
+</script>
+
+<div ng-controller="AppCtrl">
+  {{result}}
+</div>
+
+
+</body>
+</html>
